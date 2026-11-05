@@ -1,6 +1,6 @@
-/* =========================================================
+/* =============================================================
    Stephen Ochanda — Portfolio interactions
-   ========================================================= */
+   ============================================================= */
 (function () {
   "use strict";
 
@@ -22,9 +22,9 @@
     navToggle.setAttribute("aria-expanded", "false");
   };
   navToggle.addEventListener("click", () => {
-    const isOpen = navMenu.classList.toggle("open");
-    navToggle.classList.toggle("open", isOpen);
-    navToggle.setAttribute("aria-expanded", String(isOpen));
+    const open = navMenu.classList.toggle("open");
+    navToggle.classList.toggle("open", open);
+    navToggle.setAttribute("aria-expanded", String(open));
   });
   navMenu.querySelectorAll("a").forEach((a) => a.addEventListener("click", closeMenu));
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenu(); });
@@ -32,14 +32,14 @@
   /* Active nav link */
   const sections = document.querySelectorAll("main section[id]");
   const navLinks = document.querySelectorAll(".nav-link");
-  const setActiveLink = () => {
+  const setActive = () => {
     const pos = window.scrollY + 140;
     let id = "";
     sections.forEach((s) => { if (s.offsetTop <= pos) id = s.id; });
     navLinks.forEach((l) => l.classList.toggle("active", l.getAttribute("href") === "#" + id));
   };
-  window.addEventListener("scroll", setActiveLink, { passive: true });
-  setActiveLink();
+  window.addEventListener("scroll", setActive, { passive: true });
+  setActive();
 
   /* Reveal */
   const revealEls = document.querySelectorAll(".reveal");
@@ -56,7 +56,7 @@
 
   /* Counters */
   const counters = document.querySelectorAll("[data-count]");
-  const animateCounter = (el) => {
+  const runCounter = (el) => {
     const target = parseInt(el.dataset.count, 10);
     const suffix = el.dataset.suffix || "";
     if (prefersReducedMotion) { el.textContent = target + suffix; return; }
@@ -72,21 +72,21 @@
   if ("IntersectionObserver" in window) {
     const co = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
-        if (e.isIntersecting) { animateCounter(e.target); co.unobserve(e.target); }
+        if (e.isIntersecting) { runCounter(e.target); co.unobserve(e.target); }
       });
     }, { threshold: 0.6 });
     counters.forEach((el) => co.observe(el));
   } else {
-    counters.forEach(animateCounter);
+    counters.forEach(runCounter);
   }
 
-  /* Project filtering */
-  const filterButtons = document.querySelectorAll(".filter-btn");
+  /* Filter */
+  const filterBtns = document.querySelectorAll(".filter-btn");
   const projectCards = document.querySelectorAll(".project-card");
-  filterButtons.forEach((btn) => {
+  filterBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       const f = btn.dataset.filter;
-      filterButtons.forEach((b) => {
+      filterBtns.forEach((b) => {
         b.classList.toggle("is-active", b === btn);
         b.setAttribute("aria-selected", String(b === btn));
       });
@@ -98,7 +98,7 @@
   });
 
   /* Modals */
-  const modalButtons = document.querySelectorAll("[data-modal]");
+  const modalBtns = document.querySelectorAll("[data-modal]");
   const modals = document.querySelectorAll(".modal-overlay");
   let lastFocused = null;
   const openModal = (id) => {
@@ -116,7 +116,7 @@
     document.body.style.overflow = "";
     setTimeout(() => { m.hidden = true; if (lastFocused) lastFocused.focus(); }, 400);
   };
-  modalButtons.forEach((b) => b.addEventListener("click", () => openModal(b.dataset.modal)));
+  modalBtns.forEach((b) => b.addEventListener("click", () => openModal(b.dataset.modal)));
   modals.forEach((m) => {
     m.addEventListener("click", (e) => { if (e.target === m) closeModal(m); });
     const c = m.querySelector("[data-close]");
@@ -131,18 +131,18 @@
 
   /* Copy email */
   const copyBtn = document.getElementById("copyEmail");
-  const copyFeedback = document.getElementById("copyFeedback");
+  const copyFb = document.getElementById("copyFeedback");
   if (copyBtn) {
     copyBtn.addEventListener("click", async () => {
       const email = copyBtn.dataset.email;
-      try { await navigator.clipboard.writeText(email); copyFeedback.textContent = "Copied!"; }
+      try { await navigator.clipboard.writeText(email); copyFb.textContent = "Copied"; }
       catch {
         const t = document.createElement("textarea");
         t.value = email; document.body.appendChild(t); t.select();
         document.execCommand("copy"); document.body.removeChild(t);
-        copyFeedback.textContent = "Copied!";
+        copyFb.textContent = "Copied";
       }
-      setTimeout(() => { copyFeedback.textContent = ""; }, 2200);
+      setTimeout(() => { copyFb.textContent = ""; }, 2200);
     });
   }
 
@@ -163,8 +163,7 @@
   if (!prefersReducedMotion && !isTouch) {
     magnetic.forEach((btn) => {
       let rect = null;
-      const update = () => { rect = btn.getBoundingClientRect(); };
-      btn.addEventListener("mouseenter", update);
+      btn.addEventListener("mouseenter", () => { rect = btn.getBoundingClientRect(); });
       btn.addEventListener("mousemove", (e) => {
         if (!rect) return;
         const x = e.clientX - rect.left - rect.width / 2;
@@ -175,17 +174,16 @@
     });
   }
 
-  /* Hero orb parallax (subtle) */
-  const orbs = document.querySelectorAll(".hero-orb, .hero-trail");
-  if (!prefersReducedMotion && !isTouch && orbs.length) {
+  /* Subtle parallax on hero blobs */
+  const blobs = document.querySelectorAll(".hero-blob");
+  if (!prefersReducedMotion && !isTouch && blobs.length) {
     let ticking = false;
     window.addEventListener("scroll", () => {
       if (!ticking) {
         requestAnimationFrame(() => {
           const y = window.scrollY;
-          orbs.forEach((o, i) => {
-            const speed = i % 2 === 0 ? 0.06 : -0.05;
-            o.style.transform = `translateY(${y * speed}px)`;
+          blobs.forEach((b, i) => {
+            b.style.transform = `translateY(${y * (i % 2 === 0 ? 0.08 : -0.06)}px)`;
           });
           ticking = false;
         });
